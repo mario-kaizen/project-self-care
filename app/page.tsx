@@ -10,6 +10,13 @@ import {
   getLastForExercise,
   getLastSevenDays,
 } from "@/lib/storage";
+import {
+  getSecret,
+  setSecret,
+  pullRemote,
+  applyMerge,
+  schedulePush,
+} from "@/lib/sync";
 
 const EQUIPMENT_OPTIONS = [
   "Squat rack",
@@ -21,24 +28,47 @@ const EQUIPMENT_OPTIONS = [
 ];
 
 export default function Home() {
+  const [hasSecret, setHasSecret] = useState<boolean>(false);
   const [user, setUserState] = useState<User | null>(null);
   const [program, setProgram] = useState<Program | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const u = getUser();
-    setUserState(u);
-    fetch("/program.json")
-      .then((r) => r.json())
-      .then((p: Program) => {
-        setProgram(p);
-        if (u) setSession(getOrCreateTodaySession(u, p));
-        setReady(true);
-      });
+    (async () => {
+      setHasSecret(Boolean(getSecret()));
+      const programResp = await fetch("/program.json").then((r) => r.json());
+      setProgram(programResp);
+
+      if (getSecret()) {
+        const remote = await pullRemote();
+        if (remote) applyMerge(remote);
+      }
+
+      const u = getUser();
+      setUserState(u);
+      if (u) setSession(getOrCreateTodaySession(u, programResp));
+      setReady(true);
+    })();
   }, []);
 
   if (!ready) return <main className="min-h-screen paper-grain" />;
+
+  if (!hasSecret) {
+    return (
+      <Passphrase
+        onUnlock={async (secret) => {
+          setSecret(secret);
+          setHasSecret(true);
+          const remote = await pullRemote();
+          if (remote) applyMerge(remote);
+          const u = getUser();
+          setUserState(u);
+          if (u && program) setSession(getOrCreateTodaySession(u, program));
+        }}
+      />
+    );
+  }
 
   if (!user || !program) {
     return (
@@ -47,6 +77,7 @@ export default function Home() {
           persistUser(u);
           setUserState(u);
           setSession(getOrCreateTodaySession(u, program!));
+          schedulePush();
         }}
       />
     );
@@ -60,8 +91,95 @@ export default function Home() {
       onChange={(s) => {
         saveSession(s);
         setSession({ ...s });
+        schedulePush();
       }}
     />
+  );
+}
+
+/* ---------- Passphrase ---------- */
+
+function Passphrase({ onUnlock }: { onUnlock: (s: string) => Promise<void> }) {
+  const [value, setValue] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
+
+  const attempt = async () => {
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    setPending(true);
+    setError(null);
+    try {
+      const r = await fetch("/api/sync", {
+        headers: { Authorization: `Bearer ${trimmed}` },
+        cache: "no-store",
+      });
+      if (r.status === 401) {
+        setError("that passphrase didn't unlock it.");
+        setPending(false);
+        return;
+      }
+      if (!r.ok) {
+        setError("couldn't reach the server.");
+        setPending(false);
+        return;
+      }
+      await onUnlock(trimmed);
+    } catch {
+      setError("couldn't reach the server.");
+      setPending(false);
+    }
+  };
+
+  return (
+    <main className="paper-grain min-h-screen flex items-center justify-center px-8 py-16">
+      <div className="relative z-10 max-w-sm w-full fade-in">
+        <header className="mb-10">
+          <p className="font-display italic text-ink-faded text-base mb-3">
+            welcome back
+          </p>
+          <h1 className="font-display text-4xl leading-[1.05] text-ink tracking-tight">
+            Project
+            <br />
+            <span className="italic">Self Care</span>
+          </h1>
+          <p className="mt-6 text-ink-soft text-[0.95rem] leading-relaxed">
+            Your sync passphrase keeps your history with you across devices.
+            Paste it once on each device you use.
+          </p>
+        </header>
+
+        <div className="space-y-2 mb-3">
+          <p className="font-display italic text-ink-faded text-sm">
+            passphrase
+          </p>
+          <input
+            type="password"
+            autoFocus
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") attempt();
+            }}
+            placeholder="paste it here…"
+            className="input-journal"
+          />
+          {error && (
+            <p className="font-display italic text-sm text-ink-soft pt-2">
+              {error}
+            </p>
+          )}
+        </div>
+
+        <button
+          onClick={attempt}
+          disabled={pending || !value.trim()}
+          className="w-full mt-8 py-4 border border-ink text-ink font-display italic text-xl tracking-wide active:bg-ink active:text-paper transition-colors disabled:opacity-40"
+        >
+          {pending ? "unlocking…" : "unlock"}
+        </button>
+      </div>
+    </main>
   );
 }
 
