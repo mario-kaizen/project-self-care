@@ -13,7 +13,7 @@ import {
 
 const EQUIPMENT_OPTIONS = [
   "Squat rack",
-  "Barbell + plates (150kg)",
+  "Barbell + plates",
   "Bench",
   "Dumbbells",
   "Bands",
@@ -38,9 +38,7 @@ export default function Home() {
       });
   }, []);
 
-  if (!ready) {
-    return <main className="min-h-screen" />;
-  }
+  if (!ready) return <main className="min-h-screen paper-grain" />;
 
   if (!user || !program) {
     return (
@@ -67,42 +65,66 @@ export default function Home() {
   );
 }
 
+/* ---------- Setup ---------- */
+
 function Setup({ onDone }: { onDone: (u: User) => void }) {
   const [equipment, setEquipment] = useState<string[]>(EQUIPMENT_OPTIONS);
 
   return (
-    <main className="min-h-screen flex items-center justify-center p-6">
-      <div className="max-w-md w-full space-y-8">
-        <header className="space-y-2">
-          <h1 className="text-3xl font-light tracking-tight">Project Self Care</h1>
-          <p className="text-stone-600 text-base leading-relaxed">
+    <main className="paper-grain min-h-screen flex items-center justify-center px-8 py-16">
+      <div className="relative z-10 max-w-sm w-full">
+        <header className="mb-12 fade-in">
+          <p className="font-display italic text-ink-faded text-base mb-3">
+            welcome
+          </p>
+          <h1 className="font-display text-4xl leading-[1.05] text-ink tracking-tight">
+            Project
+            <br />
+            <span className="italic">Self Care</span>
+          </h1>
+          <p className="mt-6 text-ink-soft text-[0.95rem] leading-relaxed">
             Coming home to yourself, one session at a time. Today is day one.
           </p>
         </header>
 
-        <div className="space-y-3">
-          <label className="block text-sm font-medium text-stone-700">
-            Equipment you have
-          </label>
-          <div className="space-y-2">
-            {EQUIPMENT_OPTIONS.map((item) => (
-              <label
-                key={item}
-                className="flex items-center gap-3 p-3 rounded-lg bg-white border border-stone-200"
-              >
-                <input
-                  type="checkbox"
-                  checked={equipment.includes(item)}
-                  onChange={(e) => {
-                    if (e.target.checked) setEquipment([...equipment, item]);
-                    else setEquipment(equipment.filter((x) => x !== item));
-                  }}
-                  className="w-5 h-5 accent-stone-900"
-                />
-                <span className="text-stone-800">{item}</span>
-              </label>
-            ))}
-          </div>
+        <div className="mb-10 fade-in" style={{ animationDelay: "120ms" }}>
+          <p className="font-display italic text-ink-faded text-sm mb-4 tracking-wide">
+            equipment you have
+          </p>
+          <ul className="space-y-1">
+            {EQUIPMENT_OPTIONS.map((item) => {
+              const on = equipment.includes(item);
+              return (
+                <li key={item}>
+                  <button
+                    onClick={() =>
+                      setEquipment(
+                        on
+                          ? equipment.filter((x) => x !== item)
+                          : [...equipment, item],
+                      )
+                    }
+                    className="w-full flex items-center justify-between py-3 border-b border-line-soft text-left"
+                  >
+                    <span
+                      className={`text-base transition-colors ${
+                        on ? "text-ink" : "text-ink-faded"
+                      }`}
+                    >
+                      {item}
+                    </span>
+                    <span
+                      className={`font-mono text-xs transition-opacity ${
+                        on ? "text-moss opacity-100" : "opacity-0"
+                      }`}
+                    >
+                      ✓
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
         </div>
 
         <button
@@ -112,14 +134,17 @@ function Setup({ onDone }: { onDone: (u: User) => void }) {
               equipment,
             })
           }
-          className="w-full py-4 bg-stone-900 text-stone-50 rounded-xl text-base font-medium active:bg-stone-800 transition-colors"
+          className="fade-in w-full py-4 border border-ink text-ink font-display italic text-xl tracking-wide active:bg-ink active:text-paper transition-colors"
+          style={{ animationDelay: "240ms" }}
         >
-          Begin
+          begin
         </button>
       </div>
     </main>
   );
 }
+
+/* ---------- Today ---------- */
 
 function Today({
   session,
@@ -191,19 +216,34 @@ function Today({
     onChange({ ...session, actuals });
   };
 
-  const dateLabel = new Date(session.date + "T00:00:00").toLocaleDateString(
-    undefined,
-    { weekday: "long", month: "short", day: "numeric" },
-  );
+  const date = new Date(session.date + "T00:00:00");
+  const weekday = date.toLocaleDateString(undefined, { weekday: "long" });
+  const dayMonth = date.toLocaleDateString(undefined, {
+    day: "numeric",
+    month: "long",
+  });
 
   if (session.type === "rest") {
     return (
-      <main className="min-h-screen flex items-center justify-center p-6">
-        <div className="max-w-md w-full text-center space-y-4">
-          <p className="text-sm text-stone-500">{dateLabel}</p>
-          <h1 className="text-3xl font-light tracking-tight">Rest day</h1>
-          <p className="text-stone-600 leading-relaxed">
-            Recovery is the training. Walk if you want to. Sleep early. Drink water.
+      <main className="paper-grain min-h-screen flex items-center justify-center px-8 py-16">
+        <div className="relative z-10 max-w-sm w-full text-center fade-in">
+          <p className="font-display italic text-ink-faded text-sm mb-2">
+            {weekday}
+          </p>
+          <p className="font-mono text-ink-faded text-xs tracking-widest mb-8">
+            {dayMonth.toUpperCase()}
+          </p>
+          <h1 className="font-display text-5xl text-ink mb-8 leading-none">
+            <span className="italic">rest</span>
+          </h1>
+          <p className="font-display italic text-lg text-ink-soft leading-relaxed mb-12">
+            Recovery is the training.
+            <br />
+            Walk if you want to.
+            <br />
+            Sleep early.
+            <br />
+            Drink water.
           </p>
           <ConsistencyStrip />
         </div>
@@ -211,46 +251,93 @@ function Today({
     );
   }
 
+  const sessionLabel = session.type === "strength" ? "strength" : "concept 2";
+
   return (
-    <main className="min-h-screen p-6 pb-24">
-      <div className="max-w-md mx-auto space-y-8">
-        <header className="space-y-1">
-          <p className="text-sm text-stone-500">{dateLabel}</p>
-          <h1 className="text-2xl font-light tracking-tight">
-            {session.type === "strength" ? "Strength" : "Concept2"}
+    <main className="paper-grain min-h-screen px-6 pt-12 pb-32">
+      <div className="relative z-10 max-w-sm mx-auto">
+        {/* Header */}
+        <header className="mb-12 fade-in">
+          <p className="font-display italic text-ink-faded text-sm">
+            {weekday}
+          </p>
+          <p className="font-mono text-ink-faded text-[0.7rem] tracking-[0.25em] mt-1">
+            {dayMonth.toUpperCase()}
+          </p>
+          <h1 className="font-display text-5xl text-ink mt-6 leading-[0.95]">
+            <span className="italic">{sessionLabel}</span>
           </h1>
         </header>
 
-        <PreCheck value={session.preWord} onSave={updatePreWord} />
+        {/* Pre-check */}
+        <section
+          className="mb-14 fade-in"
+          style={{ animationDelay: "120ms" }}
+        >
+          <p className="font-display italic text-ink-faded text-sm mb-2">
+            before we begin
+          </p>
+          <PreCheck value={session.preWord} onSave={updatePreWord} />
+        </section>
 
-        <section className="space-y-6">
-          {session.plan.map((ex) => (
-            <ExerciseCard
+        {/* Exercises */}
+        <section className="space-y-12">
+          {session.plan.map((ex, i) => (
+            <div
               key={ex.name}
-              exercise={ex}
-              log={session.actuals?.[ex.name]}
-              onUpdateSet={(i, field, v) => updateSet(ex.name, i, field, v)}
-              onToggleBW={(i) => toggleBodyweightSet(ex.name, i)}
-              onAddSet={() => addSet(ex.name)}
-              onUpdateNotes={(n) => updateNotes(ex.name, n)}
-            />
+              className="fade-in"
+              style={{ animationDelay: `${200 + i * 80}ms` }}
+            >
+              <ExerciseBlock
+                index={i + 1}
+                exercise={ex}
+                log={session.actuals?.[ex.name]}
+                onUpdateSet={(idx, field, v) =>
+                  updateSet(ex.name, idx, field, v)
+                }
+                onToggleBW={(idx) => toggleBodyweightSet(ex.name, idx)}
+                onAddSet={() => addSet(ex.name)}
+                onUpdateNotes={(n) => updateNotes(ex.name, n)}
+              />
+            </div>
           ))}
         </section>
 
-        {!session.completed && <PostCheck onFinish={finishSession} />}
+        {/* Post / completed */}
+        {!session.completed && (
+          <section
+            className="mt-16 pt-10 border-t border-line fade-in"
+            style={{
+              animationDelay: `${280 + session.plan.length * 80}ms`,
+            }}
+          >
+            <PostCheck onFinish={finishSession} />
+          </section>
+        )}
 
         {session.completed && (
-          <div className="space-y-4 pt-4">
-            <p className="text-center text-lg font-light text-stone-700">
+          <section className="mt-16 pt-10 border-t border-line text-center fade-in">
+            <p className="font-display italic text-2xl text-ink leading-snug">
               You came back today.
             </p>
-            <ConsistencyStrip />
-          </div>
+            {session.preWord && session.postWord && (
+              <p className="font-mono text-xs text-ink-faded mt-4 tracking-wider">
+                {session.preWord.toUpperCase()}
+                <span className="mx-2 opacity-60">→</span>
+                {session.postWord.toUpperCase()}
+              </p>
+            )}
+            <div className="mt-10">
+              <ConsistencyStrip />
+            </div>
+          </section>
         )}
       </div>
     </main>
   );
 }
+
+/* ---------- Pre / Post ---------- */
 
 function PreCheck({
   value,
@@ -261,47 +348,47 @@ function PreCheck({
 }) {
   const [word, setWord] = useState(value ?? "");
   return (
-    <section className="space-y-2">
-      <label className="block text-sm text-stone-600">
-        Before we start. One word for how you&apos;re feeling.
-      </label>
-      <input
-        type="text"
-        value={word}
-        onChange={(e) => setWord(e.target.value)}
-        onBlur={() => onSave(word)}
-        placeholder="…"
-        className="w-full px-4 py-3 bg-white border border-stone-200 rounded-lg text-base focus:outline-none focus:border-stone-400"
-      />
-    </section>
+    <input
+      type="text"
+      value={word}
+      onChange={(e) => setWord(e.target.value)}
+      onBlur={() => onSave(word)}
+      placeholder="today I feel…"
+      className="input-journal"
+    />
   );
 }
 
 function PostCheck({ onFinish }: { onFinish: (v: string) => void }) {
   const [word, setWord] = useState("");
   return (
-    <section className="space-y-3 pt-4 border-t border-stone-200">
-      <label className="block text-sm text-stone-600">
-        Done? One word for how you&apos;re feeling now.
-      </label>
-      <input
-        type="text"
-        value={word}
-        onChange={(e) => setWord(e.target.value)}
-        placeholder="…"
-        className="w-full px-4 py-3 bg-white border border-stone-200 rounded-lg text-base focus:outline-none focus:border-stone-400"
-      />
+    <div className="space-y-8">
+      <div>
+        <p className="font-display italic text-ink-faded text-sm mb-2">
+          and now?
+        </p>
+        <input
+          type="text"
+          value={word}
+          onChange={(e) => setWord(e.target.value)}
+          placeholder="how do you feel now…"
+          className="input-journal"
+        />
+      </div>
       <button
         onClick={() => onFinish(word)}
-        className="w-full py-4 bg-stone-900 text-stone-50 rounded-xl text-base font-medium active:bg-stone-800 transition-colors"
+        className="w-full py-4 border border-ink text-ink font-display italic text-xl tracking-wide active:bg-ink active:text-paper transition-colors"
       >
-        I&apos;m done
+        i&apos;m done
       </button>
-    </section>
+    </div>
   );
 }
 
-function ExerciseCard({
+/* ---------- Exercise block ---------- */
+
+function ExerciseBlock({
+  index,
   exercise,
   log,
   onUpdateSet,
@@ -309,6 +396,7 @@ function ExerciseCard({
   onAddSet,
   onUpdateNotes,
 }: {
+  index: number;
   exercise: Exercise;
   log?: { sets: SetLog[]; notes?: string };
   onUpdateSet: (i: number, field: "weight" | "reps", v: number | null) => void;
@@ -321,25 +409,38 @@ function ExerciseCard({
   const displayCount = Math.max(exercise.sets, sets.length);
   const isBW = exercise.bodyweight === true;
   const [notes, setNotes] = useState(log?.notes ?? "");
+  const [notesOpen, setNotesOpen] = useState(Boolean(log?.notes));
 
   return (
-    <div className="space-y-3 p-4 bg-white border border-stone-200 rounded-xl">
-      <header>
-        <div className="flex justify-between items-baseline">
-          <h2 className="text-lg font-medium">{exercise.name}</h2>
-          <span className="text-sm text-stone-500">
-            {exercise.sets} × {exercise.reps}
-          </span>
-        </div>
-        <p className="text-xs text-stone-500 mt-1">{exercise.load}</p>
-        {last && !isBW && (
-          <p className="text-xs text-stone-500 mt-2">
-            Last: {last.map((s) => `${s.weight ?? "—"}kg × ${s.reps ?? "—"}`).join(", ")}
-          </p>
-        )}
+    <article>
+      {/* Header row */}
+      <header className="flex items-baseline gap-4 mb-1">
+        <span className="font-mono text-xs text-ink-faded tracking-wider tabular-nums">
+          {String(index).padStart(2, "0")}
+        </span>
+        <h2 className="font-display text-2xl text-ink leading-tight flex-1">
+          {exercise.name.toLowerCase()}
+        </h2>
+        <span className="font-mono text-xs text-ink-faded tabular-nums whitespace-nowrap">
+          {exercise.sets} × {exercise.reps}
+        </span>
       </header>
 
-      <div className="space-y-2">
+      <p className="font-display italic text-sm text-ink-faded ml-8 mb-4">
+        {exercise.load}
+      </p>
+
+      {last && !isBW && (
+        <p className="font-mono text-[0.7rem] text-ink-faded ml-8 mb-5 tracking-wider">
+          last ·{" "}
+          {last
+            .map((s) => `${s.weight ?? "—"}kg × ${s.reps ?? "—"}`)
+            .join("  ·  ")}
+        </p>
+      )}
+
+      {/* Set rows */}
+      <div className="ml-8 space-y-3">
         {Array.from({ length: displayCount }, (_, i) => {
           const s = sets[i];
           if (isBW) {
@@ -348,19 +449,29 @@ function ExerciseCard({
               <button
                 key={i}
                 onClick={() => onToggleBW(i)}
-                className={`w-full px-3 py-3 rounded-lg text-sm font-medium border transition-colors ${
+                className={`w-full flex items-center justify-between py-2 border-b transition-colors ${
                   done
-                    ? "bg-stone-900 text-stone-50 border-stone-900"
-                    : "bg-stone-50 text-stone-600 border-stone-200"
+                    ? "border-moss text-moss"
+                    : "border-line-soft text-ink-faded"
                 }`}
               >
-                Set {i + 1} {done ? "✓" : ""}
+                <span className="font-mono text-xs tracking-wider">
+                  set {i + 1}
+                </span>
+                <span className="font-mono text-xs">
+                  {done ? "complete" : "—"}
+                </span>
               </button>
             );
           }
           return (
-            <div key={i} className="flex items-center gap-2">
-              <span className="text-xs text-stone-500 w-12">Set {i + 1}</span>
+            <div
+              key={i}
+              className="grid grid-cols-[1.75rem_1fr_0.75rem_1fr] items-center gap-2 py-1"
+            >
+              <span className="font-mono text-[0.7rem] text-ink-faded tracking-wider">
+                {String(i + 1).padStart(2, "0")}
+              </span>
               <input
                 type="number"
                 inputMode="decimal"
@@ -373,9 +484,11 @@ function ExerciseCard({
                     e.target.value === "" ? null : Number(e.target.value),
                   )
                 }
-                className="flex-1 px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-base focus:outline-none focus:border-stone-400"
+                className="input-numeric"
               />
-              <span className="text-stone-400">×</span>
+              <span className="text-ink-faded text-center font-display italic text-sm">
+                ×
+              </span>
               <input
                 type="number"
                 inputMode="numeric"
@@ -388,45 +501,74 @@ function ExerciseCard({
                     e.target.value === "" ? null : Number(e.target.value),
                   )
                 }
-                className="flex-1 px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-base focus:outline-none focus:border-stone-400"
+                className="input-numeric"
               />
             </div>
           );
         })}
       </div>
 
+      {/* Add set */}
       <button
         onClick={onAddSet}
-        className="w-full py-2 text-sm text-stone-600 border border-dashed border-stone-300 rounded-lg active:bg-stone-100 transition-colors"
+        className="ml-8 mt-4 font-display italic text-sm text-ink-faded hover:text-ink active:text-ink transition-colors"
       >
         + add set
       </button>
 
-      <textarea
-        value={notes}
-        onChange={(e) => setNotes(e.target.value)}
-        onBlur={() => onUpdateNotes(notes)}
-        placeholder="Notes (optional)"
-        rows={2}
-        className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-lg text-sm focus:outline-none focus:border-stone-400 resize-none"
-      />
-    </div>
+      {/* Notes */}
+      <div className="ml-8 mt-4">
+        {notesOpen ? (
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            onBlur={() => onUpdateNotes(notes)}
+            placeholder="a note…"
+            rows={2}
+            autoFocus={!log?.notes}
+            className="w-full bg-transparent border-b border-line-soft outline-none font-display italic text-sm text-ink py-2 resize-none focus:border-ink-soft transition-colors"
+          />
+        ) : (
+          <button
+            onClick={() => setNotesOpen(true)}
+            className="font-display italic text-sm text-ink-faded hover:text-ink transition-colors"
+          >
+            + a note
+          </button>
+        )}
+      </div>
+    </article>
   );
 }
 
+/* ---------- Consistency strip ---------- */
+
 function ConsistencyStrip() {
   const days = getLastSevenDays();
+  const todayISO = new Date().toISOString().slice(0, 10);
   return (
-    <div className="flex justify-center gap-2 pt-2">
-      {days.map((d) => (
-        <div
-          key={d.date}
-          title={d.date}
-          className={`w-3 h-3 rounded-full ${
-            d.completed ? "bg-stone-700" : "bg-stone-200"
-          }`}
-        />
-      ))}
+    <div className="flex justify-center items-center gap-3">
+      {days.map((d) => {
+        const isToday = d.date === todayISO;
+        const completed = d.completed;
+        return (
+          <div
+            key={d.date}
+            title={d.date}
+            className={`relative w-2 h-2 rounded-full transition-colors ${
+              completed
+                ? "bg-ink"
+                : isToday
+                ? "bg-transparent border border-moss"
+                : "bg-transparent border border-line"
+            }`}
+          >
+            {isToday && completed && (
+              <span className="absolute inset-[-4px] rounded-full border border-moss" />
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
