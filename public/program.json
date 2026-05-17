@@ -1,0 +1,57 @@
+{
+  "days": [
+    {
+      "day": 1,
+      "type": "strength",
+      "exercises": [
+        { "name": "Back squat", "sets": 2, "reps": 6, "load": "30% of old working weight" },
+        { "name": "Romanian deadlift", "sets": 2, "reps": 8, "load": "30%" },
+        { "name": "Plank", "sets": 3, "reps": "30s hold", "load": "bodyweight", "bodyweight": true }
+      ]
+    },
+    {
+      "day": 2,
+      "type": "concept2",
+      "exercises": [
+        { "name": "Steady-state row", "sets": 1, "reps": "20 min", "load": "RPE 3-4, conversational pace" }
+      ]
+    },
+    {
+      "day": 3,
+      "type": "strength",
+      "exercises": [
+        { "name": "Bench press", "sets": 2, "reps": 6, "load": "30%" },
+        { "name": "Single-arm DB row", "sets": 2, "reps": "8 each side", "load": "light, form first" },
+        { "name": "Dead bug", "sets": 3, "reps": 10, "load": "bodyweight", "bodyweight": true }
+      ]
+    },
+    {
+      "day": 4,
+      "type": "concept2",
+      "exercises": [
+        { "name": "Steady-state row", "sets": 1, "reps": "20 min", "load": "RPE 3-4" }
+      ]
+    },
+    {
+      "day": 5,
+      "type": "strength",
+      "exercises": [
+        { "name": "Goblet squat", "sets": 2, "reps": 8, "load": "moderate DB" },
+        { "name": "DB overhead press", "sets": 2, "reps": 6, "load": "light" },
+        { "name": "Side plank", "sets": 3, "reps": "20s each side", "load": "bodyweight", "bodyweight": true }
+      ]
+    },
+    {
+      "day": 6,
+      "type": "concept2",
+      "exercises": [
+        { "name": "Steady-state row", "sets": 1, "reps": "25 min", "load": "RPE 3-4" }
+      ]
+    },
+    {
+      "day": 7,
+      "type": "rest",
+      "exercises": []
+    }
+  ]
+}
